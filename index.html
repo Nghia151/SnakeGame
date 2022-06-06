@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+
+
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="d-flex">
+        <canvas id="canvas" width="600" height="600"></canvas>
+
+        <div class="text-center info">
+            <h1 class="text-center">Snake Game</h1>
+            <div class="score">
+                <h4 id="score">Score: <span>0</span></h4>
+
+            </div>
+            <div class="level">
+                <h4 id="level">Level: <span>1</span></h4>
+
+            </div>
+            <div id="time"></div>
+            <div class="row">
+                <button id="start" class="btn btn-success col-4 m-1">
+                    Bắt đầu
+                </button>
+                <button id="stop" class="btn btn-danger col-4 m-1">
+                    Dừng lại
+                </button>
+                <button id="reset" class="btn btn-danger col-4 m-1">
+                    Chơi lại
+                </button>
+            </div>
+            <div class="row">
+                <button id="level2" class="btn btn-primary col-4 m-1">
+                    Level 2
+                </button>
+                <button id="level3" class="btn btn-primary col-4 m-1">
+                    Level 3
+                </button>
+                <button id="level4" class="btn btn-primary col-4 m-1">
+                    Level 4
+                </button>
+                <button id="level5" class="btn btn-primary col-4 m-1">
+                    Level 5
+                </button>
+                <button id="level6" class="btn btn-primary col-4 m-1">
+                    Level 6
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        const canvas = $("#canvas")[0];
+        const context = canvas.getContext("2d");
+        // $("#canvas").css('background-image', 'url("./food.jpg")');
+
+        let foodX;
+        let foodY;
+
+        let len = 0;
+        let snakeX = 25;
+        let snakeY = 25;
+        let score = 0;
+        let level = 1;
+
+        let BodySnake = [];
+        let interval = 200;
+        let da1X = 125;
+        let da1Y = 100;
+        let da2X = 450;
+        let da2Y = 300;
+        let da3X = 400;
+        let da3Y = 100;
+        let da4X = 100;
+        let da4Y = 450;
+        let da5X = 50;
+        let da5Y = 300;
+        let da6 = 250;
+        let da7 = 200;
+        let da8 = 500;
+        let timer = 10;
+        let seconds;
+        let cave1X = 250;
+        let cave1Y = 100;
+        let cave2X = 325;
+        let cave2Y = 375;
+        let boom1X = 50;
+        let boom1Y = 75;
+        let boom2X = 525;
+        let boom2Y = 475;
+        let boom3X = 300;
+        let boom3Y = 175;
+        let boom4X = 300;
+        let boom4Y = 275;
+        let poisonX;
+        let poisonY;
+
+        direction = {
+            x: 1,
+            y: 0
+        }
+        let stop;
+        let eat = new Audio();
+        eat.src = "audio/an.mp3";
+        let die = new Audio();
+        die.src = "audio/die.mp3";
+        let bangBoom = new Audio();
+        bangBoom.src = "audio/noBoom.mp3";
+
+        function createSnake() {
+            clear();
+
+            eatApple();
+
+            context.fillStyle = "brown";
+            let bodyImg = new Image();
+            bodyImg.src = "img/body.png";
+            for (let i = 0; i < BodySnake.length; i++) {
+                context.drawImage(bodyImg, BodySnake[i][0], BodySnake[i][1]);
+            }
+            BodySnake.unshift([snakeX, snakeY]);
+
+            snakeX += direction.x * 25;
+            snakeY += direction.y * 25
+            snakeX = (snakeX + 600) % 600;
+            snakeY = (snakeY + 600) % 600;
+            let headImg = new Image();
+            headImg.src = "img/head.png";
+             // headImg.onload = function () {
+            context.drawImage(headImg, BodySnake[0][0], BodySnake[0][1]);
+             // }
+
+            if (score > 10) {
+                level = 2;
+
+                level2();
+                $("#level").html("Level: <span>" + level + "</span>");
+
+            }
+            if (score > 15) {
+
+                level = 3;
+
+                level3();
+                $("#level").html("Level: <span>" + level + "</span>");
+
+
+            }
+            if (score > 20) {
+                level = 4;
+
+                level4();
+                $("#level").html("Level: <span>" + level + "</span>");
+            }
+            if (score > 25) {
+                level = 5;
+
+                level5();
+                $("#level").html("Level: <span>" + level + "</span>");
+            }
+            if (score > 30) {
+                level = 6;
+                level6();
+                $("#level").html("Level: <span>" + level + "</span>");
+            }
+
+
+            //Xu li ran can vao than
+            for (let i = 1; i < BodySnake.length; i++) {
+                if (snakeX == BodySnake[i][0] && snakeY == BodySnake[i][1]) {
+                    clearInterval(stop);
+                    die.play();
+
+                    $("#stop").hide();
+                    let end = new Image();
+                    end.src = 'img/end.png';
+                    end.onload = function () {
+                        context.drawImage(end, 100, 200);
+                    }
+                    $("#stop").hide();
+                    // die.pause();
+                }
+            }
+
+            console.log(snakeX, snakeY);
+            console.log(BodySnake.length);
+            console.log(BodySnake);
+        }
+
+
+        function clear() {
+            let bgImg = new Image();
+            bgImg.src = 'img/nen.png';
+            context.drawImage(bgImg, 0, 0);
+
+
+        }
+
+        createSnake();
+
+
+        function thucAn() {
+
+            foodX = Math.floor(Math.random() * (600 / 25)) * 25;
+            foodY = Math.floor(Math.random() * (600 / 25)) * 25;
+            for (let i = 0; i < BodySnake.length; i++) {
+                if (foodX === BodySnake[i][0] && foodY === BodySnake[i][1]) {
+                    thucAn();
+                }
+            }
+
+        }
+
+        thucAn();
+
+
+        // thoi gian dem nguoc cho level3
+        function startTimer() {
+            seconds = parseInt(timer % 60, 10);
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            if (--timer < 0) {
+                timer = 0;
+                // die.play()
+                clearInterval(stop);
+                $("#stop").hide();
+                let end = new Image();
+                end.src = 'img/end.png';
+                end.onload = function () {
+                    context.drawImage(end, 100, 200);
+                }
+            }
+
+
+        }
+
+        // chay thoi gian khi toi level 4
+        setInterval(function () {
+            if (score > 25) {
+                startTimer();
+                $("#time").html("00:<span>" + seconds + "</span>");
+            }
+
+
+        }, 1000);
+
+        function level5() {
+
+            // Ve hang dong
+            let caveImg = new Image();
+            caveImg.src = "img/hang.png";
+            context.drawImage(caveImg, cave1X, cave1Y);
+            context.drawImage(caveImg, cave2X, cave2Y);
+
+
+            // Kiem tra dau ran dung hang thi dat lai vi trí ran
+            if (snakeX == cave2X && snakeY == cave2Y) {
+                snakeX = cave2X - 75;
+                snakeY = cave2Y - 275;
+            } else if (snakeX == cave1X && snakeY == cave1Y) {
+                snakeX = cave1X + 75;
+                snakeY = cave1Y + 275;
+            }
+
+        }
+
+        let move1 = 25;
+        let move2 = -25;
+        let move3 = 25;
+        let move4 = -25;
+
+        function level6() {
+
+            // tạo di chuyển cho boom
+            if ((boom1X > 525 || boom1X < 75) && (boom2X < 75 || boom2X > 525)) {
+                move1 = (-move1);
+                move2 = (-move2);
+            }
+            if ((boom3X < 300 || boom3X > 525) && (boom4X < 75 || boom4X > 300)) {
+                move3 = (-move3);
+                move4 = (-move4);
+            }
+            // tao huong di chuyen cho boom
+            boom1X += move1;
+            boom2X += move2;
+            boom3X += move3;
+            boom4X += move4;
+
+            // ve boom
+            let boomImg = new Image();
+            boomImg.src = "img/boom.png";
+            context.drawImage(boomImg, boom1X, boom1Y);
+            context.drawImage(boomImg, boom2X, boom2Y);
+            context.drawImage(boomImg, boom3X, boom3Y);
+            context.drawImage(boomImg, boom4X, boom4Y);
+
+            // kiểm tra boom đụng vào rắn nếu đụng thì rắn chết
+            for (let i = 0; i < BodySnake.length; i++) {
+                if (BodySnake[i][0] == boom1X && BodySnake[i][1] == boom1Y || BodySnake[i][0] == boom2X && BodySnake[i][1] == boom2Y || BodySnake[i][0] == boom3X && BodySnake[i][1] == boom3Y || BodySnake[i][0] == boom4X && BodySnake[i][1] == boom4Y) {
+                    clearInterval(stop);
+                    bangBoom.play();
+                    die.play();
+                    $("#stop").hide();
+                    timer = 0;
+                    let end = new Image();
+                    end.src = 'img/end.png';
+                    end.onload = function () {
+                        context.drawImage(end, 100, 200);
+                    }
+
+                }
+            }
+
+
+        }
+
+        function poison() {
+            // tạo vi trí cho táo độc
+            poisonX = Math.floor(Math.random() * 600 / 25) * 25;
+            poisonY = Math.floor(Math.random() * 600 / 25) * 25;
+            for (let i = 0; i < BodySnake.length; i++) {
+                if (poisonX == BodySnake[i][0] && poisonY == BodySnake[i][1] || poisonX == 0 || poisonY == 0 || poisonX == 575 || poisonY == 575) {
+                    poison();
+                }
+                if (poisonX == da1X && poisonY == da1Y || poisonX == da2X && poisonY == da2Y || poisonX == da3X && poisonY == da3Y || poisonX == da4X && poisonY == da4Y ||
+                    poisonX == da5X && poisonY == da5Y || poisonX == da7 && poisonY == da7 || poisonX == da8 && poisonY == da8 || poisonX == da6 && poisonY == da6) {
+                    poison();
+                }
+            }
+
+        }
+
+        poison();
+
+        function level4() {
+            // vẽ táo độc
+            let poisonImg = new Image();
+            poisonImg.src = 'img/poison.png';
+            context.drawImage(poisonImg, poisonX, poisonY)
+            console.log(poisonX, poisonY);
+            // kiểm tra nếu chiều dài rắn là 1 ăn táo độc sẽ chết
+            if (BodySnake.length == 1 && snakeX == poisonX && snakeY == poisonY) {
+                clearInterval(stop);
+                die.play();
+                $("#stop").hide();
+                timer = 0;
+                let end = new Image();
+                end.src = 'img/end.png';
+                end.onload = function () {
+                    context.drawImage(end, 100, 200);
+                }
+            }
+            // nếu chiều dài rắn lớn hơn 1 ăn táo độc
+            if (snakeX == poisonX && snakeY == poisonY) {
+                BodySnake.pop();
+                poison();
+            }
+
+        }
+
+        function level3() {
+
+            // ve chuong ngai vat là đá
+            let daImg = new Image();
+            daImg.src = "img/da.png";
+            context.drawImage(daImg, da1X, da1Y);
+            context.drawImage(daImg, da2X, da2Y);
+            context.drawImage(daImg, da3X, da3Y);
+            context.drawImage(daImg, da4X, da4Y);
+            context.drawImage(daImg, da5X, da5Y);
+            context.drawImage(daImg, da6, da6);
+            context.drawImage(daImg, da7, da7);
+            context.drawImage(daImg, da8, da8);
+
+            // kiểm tra rắn chạm đá nếu đụng thì sẽ chết
+            if (snakeX == da1X && snakeY == da1Y || snakeX == da2X && snakeY == da2Y || snakeX == da3X && snakeY == da3Y || snakeX == da4X && snakeY == da4Y || snakeX == da5X && snakeY == da5Y ||
+                snakeX == da6 && snakeY == da6 || snakeX == da7 && snakeY == da7 || snakeX == da8 && snakeY == da8 || timer == 0) {
+                clearInterval(stop);
+                die.play();
+                $("#stop").hide();
+                timer = 0;
+                let end = new Image();
+                end.src = 'img/end.png';
+                end.onload = function () {
+                    context.drawImage(end, 100, 200);
+                }
+                $("#stop").hide();
+            }
+            // ve lai thuc an khi trung vao vi tri vat can
+            if (foodX == da1X && foodY == da1Y || foodX == da2X && foodY == da2Y || foodX == da3X && foodY == da3Y || foodX == da4X && foodY == da4Y || foodX == da5X && foodY == da5Y ||
+                foodX == da6 && foodY == da6 || foodX == da7 && foodY == da7 || foodX == da8 && foodY == da8) {
+                thucAn();
+            }
+
+
+        }
+
+        function eatApple() {
+            // vẽ thức ăn
+            let foodImg = new Image();
+            foodImg.src = 'img/taos.png';
+
+            context.drawImage(foodImg, foodX, foodY);
+
+            // kiểm tra rắn ăn mồi
+            if (snakeX == foodX && snakeY == foodY) {
+
+                eat.play();
+                len++;
+                score++;
+                timer = 15;
+                $("#score").html("Score: <span>" + score + "</span>");
+                startTimer();
+                thucAn();
+            } else {
+                BodySnake.pop();
+            }
+            console.log(snakeX, snakeY)
+        }
+
+        function level2() {
+
+            // Ve lai thuc an khi trung vi trí bon buc tuong
+            if (foodX == 0 || foodY == 0 || foodX == 575 || foodY == 575) {
+                thucAn();
+            }
+            // ve bon buc tuong
+            context.fillStyle = '#21323f';
+            context.fillRect(0, 0, 600, 25);
+            context.fillRect(0, 0, 25, 600);
+            context.fillRect(575, 0, 25, 600);
+            context.fillRect(0, 575, 600, 25);
+            // kiem tra ran dung tuong
+            if (snakeX == 0 || snakeX > 550 || snakeY == 0 || snakeY > 550) {
+                clearInterval(stop)
+                die.play();
+                $("#stop").hide();
+                let end = new Image();
+                end.src = 'img/end.png';
+                end.onload = function () {
+                    context.drawImage(end, 100, 200);
+                }
+                $("#stop").hide();
+            }
+
+
+        }
+
+        $("#stop").hide();
+        $("#reset").hide();
+        $("#start").click(function () {
+            stop = setInterval(createSnake, interval)
+
+            $("#start").hide();
+            $("#stop").show();
+            $("#reset").show();
+
+        })
+        $("#stop").click(function () {
+
+            clearInterval(stop)
+            $("#start").show();
+            $("#stop").hide();
+
+        })
+        $("#reset").click(function () {
+            location.reload();
+
+        })
+
+        // set điểm để tăng level khi nhấn nút
+        $("#level2").click(function () {
+            score = 11;
+        })
+        $("#level3").click(function () {
+            score = 16;
+        })
+        $("#level4").click(function () {
+            score = 21;
+        })
+        $("#level5").click(function () {
+            score = 26;
+        })
+        $("#level6").click(function () {
+            score = 31;
+        })
+
+        $(document).keydown(function (e) {
+            let key = e.which;
+            // alert(key)
+            if (key == "37" && direction.x != 1) {
+                direction.x = -1;
+                direction.y = 0;
+            }
+            if (key == "38" && direction.y != 1) {
+                direction.x = 0;
+                direction.y = -1;
+            }
+            if (key == "39" && direction.x != -1) {
+                direction.x = 1;
+                direction.y = 0;
+            }
+            if (key == "40" && direction.y != -1) {
+                direction.x = 0;
+                direction.y = 1;
+            }
+        })
+    });
+
+</script>
+
+</body>
+</html>

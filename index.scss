@@ -1,0 +1,22 @@
+// biến color
+$color-red-1: rgb(213, 80, 80);
+$color-yellow-1: yellow;
+// bien margin
+$mg-1: 100px;
+@font-face {
+  font-family: pony;
+  src: url("font/Pony.ttf");
+}
+body {
+  background: url("img/bg.jpg") no-repeat fixed;
+  background-size: cover;
+  font-family:pony ;
+  #canvas{
+    background-image: url("img/nen.png");
+    box-shadow:  5px 8px 30px 8px $color-red-1;
+    margin-right: $mg-1;
+  }
+  .info {
+    color: $color-yellow-1;
+  }
+}

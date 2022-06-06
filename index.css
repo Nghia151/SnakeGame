@@ -1,0 +1,19 @@
+@font-face {
+  font-family: pony;
+  src: url("font/Pony.ttf");
+}
+body {
+  background: url("img/bg.jpg") no-repeat fixed;
+  background-size: cover;
+  font-family: pony;
+}
+body #canvas {
+  background-image: url("img/nen.png");
+  box-shadow: 5px 8px 30px 8px rgb(213, 80, 80);
+  margin-right: 100px;
+}
+body .info {
+  color: yellow;
+}
+
+/*# sourceMappingURL=index.css.map */
